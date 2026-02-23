@@ -2,33 +2,34 @@
 # ─────────────────────────────────────────────────────
 # Moosermail deploy
 # Usage:
-#   bash deploy.sh          (all)
+#   bash deploy.sh            (all)
 #   bash deploy.sh landing
 #   bash deploy.sh mcp
+#   bash deploy.sh app
 #   bash deploy.sh nginx
 # ─────────────────────────────────────────────────────
 set -eo pipefail
 
 SERVER="mooser@165.22.169.31"
 SSH="ssh -i ~/.ssh/mooser"
-SCP="rsync -avz --quiet -e 'ssh -i ~/.ssh/mooser'"
 REMOTE_DIR="/home/mooser/app"
 TARGET="${1:-all}"
 
 green() { echo -e "\033[0;32m[✓]\033[0m $1"; }
 
 green "Syncing files to mooser@vps..."
-eval rsync -avz --quiet \
+rsync -avz --quiet \
   --exclude node_modules \
   --exclude mcp/dist \
+  --exclude app/.next \
   --exclude .git \
   --exclude "*.env" \
-  -e "'ssh -i ~/.ssh/mooser'" \
+  -e "ssh -i ~/.ssh/mooser" \
   ./ ${SERVER}:${REMOTE_DIR}/
 
 green "Files synced"
 
-if [[ "$TARGET" == "all" || "$TARGET" == "mcp" || "$TARGET" == "landing" ]]; then
+if [[ "$TARGET" == "all" || "$TARGET" == "mcp" || "$TARGET" == "landing" || "$TARGET" == "app" ]]; then
   green "Building and starting containers..."
   $SSH ${SERVER} bash -s << 'REMOTE'
     set -eo pipefail
@@ -64,8 +65,9 @@ $SSH ${SERVER} bash -s << 'REMOTE'
   docker compose -f /home/mooser/app/docker-compose.yml ps
   echo ""
   echo "=== Health ==="
-  echo -n "Landing: "; curl -sf http://127.0.0.1:4000/ -o /dev/null && echo "OK" || echo "FAIL"
-  echo -n "MCP:     "; curl -sf http://127.0.0.1:4001/health && echo "" || echo "FAIL"
+  echo -n "Landing (4000): "; curl -sf http://127.0.0.1:4000/ -o /dev/null && echo "OK" || echo "FAIL"
+  echo -n "MCP     (4001): "; curl -sf http://127.0.0.1:4001/health && echo "" || echo "FAIL"
+  echo -n "App     (4002): "; curl -sf http://127.0.0.1:4002/ -o /dev/null && echo "OK" || echo "FAIL"
   echo ""
 REMOTE
 

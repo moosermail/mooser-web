@@ -411,6 +411,9 @@
       <img src="assets/mooser-comp.png" alt="Moosermail">
       MOOSERMAIL
     </a>
+    <a href="#pricing" style="font-family:'Space Grotesk',sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);text-decoration:none;">PRICING</a>
+    <a href="#byok" style="font-family:'Space Grotesk',sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);text-decoration:none;">SECURITY</a>
+    <a href="https://app.mooser.email" class="pill-btn" style="padding:.5rem 1.2rem;font-size:.85rem;">SIGN IN</a>
     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
   </nav>
 
@@ -419,7 +422,7 @@
     <img src="assets/mooser-comp.png" alt="Moosermail" class="hero-logo">
     <h1>THE MISSING<br><span>INBOX FOR</span><br>RESEND.</h1>
     <p class="hero-sub">Read, reply, and compose — without touching the API.</p>
-    <a href="#pricing" class="pill-btn">GET STARTED — $3.99/MO</a>
+    <a href="https://app.mooser.email/signup" class="pill-btn">GET STARTED — FROM $3.99/MO</a>
     <span class="hero-scroll">SCROLL</span>
   </section>
 
@@ -463,11 +466,18 @@
       </div>
       <div class="card">
         <span class="card-tag">MCP</span>
+        <span class="card-tag" style="background:var(--fg);color:var(--bg);margin-left:.5rem;">PRO</span>
         <h3>AGENTS READ YOUR MAIL</h3>
-        <p>Let your AI agent check, draft, and (if you allow it) send emails on your behalf.</p>
+        <p>Let your AI agent check, draft, and (if you allow it) send emails on your behalf. MCP access requires the Pro plan.</p>
       </div>
     </div>
   </section>
+
+  <!-- BYOK SECTION -->
+  <div class="problem" id="byok">
+    <h2>YOUR KEY. <em>YOUR DATA.</em></h2>
+    <p>Bring your own Resend API key. We store it securely — it never leaves our servers in plain text.</p>
+  </div>
 
   <!-- CLI STRIP -->
   <div class="cli-strip">
@@ -480,22 +490,48 @@
   </div>
 
   <!-- PRICING -->
-  <section class="pricing" id="pricing">
+  <section class="pricing" id="pricing" style="max-width:780px;">
     <p class="section-label">PRICING</p>
-    <h2>ONE PRICE. EVERYTHING INCLUDED.</h2>
-    <div class="price-card">
-      <div class="price">$3.99</div>
-      <p class="price-per">PER MONTH</p>
-      <ul class="price-features">
-        <li>Unlimited emails</li>
-        <li>Reply, compose, and draft</li>
-        <li>Full sent history</li>
-        <li>MCP agent access</li>
-        <li>CLI included free</li>
-        <li>Cancel anytime</li>
-      </ul>
-      <a href="#" class="pill-btn" style="width:100%;text-align:center;">GET STARTED</a>
+    <h2>SIMPLE, TRANSPARENT PRICING.</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+      <!-- Basic -->
+      <div class="price-card" style="text-align:left;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.12em;color:var(--grey);margin-bottom:.5rem;">BASIC</div>
+        <div class="price" style="font-size:4rem;">$3.99</div>
+        <p class="price-per">PER MONTH</p>
+        <ul class="price-features">
+          <li>Web inbox</li>
+          <li>Read, reply, compose</li>
+          <li>Drafts &amp; sent history</li>
+          <li>CLI included free</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <a href="https://app.mooser.email/signup" class="pill-btn" style="width:100%;text-align:center;font-size:1rem;">GET STARTED</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="price-card" style="text-align:left;border:2px solid var(--fg);">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.12em;color:var(--grey);">PRO</div>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:.65rem;letter-spacing:.2em;padding:.2rem .7rem;border-radius:100px;background:var(--fg);color:var(--bg);">BEST VALUE</span>
+        </div>
+        <div class="price" style="font-size:4rem;">$6.99</div>
+        <p class="price-per">PER MONTH</p>
+        <ul class="price-features">
+          <li>Everything in Basic</li>
+          <li>MCP agent access</li>
+          <li>AI reads your mail</li>
+          <li>JWT-secured auth</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <a href="https://app.mooser.email/signup" class="pill-btn" style="width:100%;text-align:center;font-size:1rem;">GET PRO</a>
+      </div>
+
     </div>
+    <p style="margin-top:1.5rem;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);">
+      Both plans require your own Resend account. Only needs Send + Receive Email permissions.
+    </p>
   </section>
 
   <!-- FOOTER -->

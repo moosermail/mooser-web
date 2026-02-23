@@ -2,10 +2,81 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import express, { Request, Response } from "express";
+import { createClient } from "@supabase/supabase-js";
 
-const RESEND_API  = "https://api.resend.com";
-const PORT        = parseInt(process.env.PORT ?? "4001");
+const RESEND_API   = "https://api.resend.com";
+const PORT         = parseInt(process.env.PORT ?? "4001");
 const SEND_ENABLED = process.env.SEND_ENABLED === "true";
+
+const SUPABASE_URL              = process.env.SUPABASE_URL!;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  console.error("FATAL: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set");
+  process.exit(1);
+}
+
+const serviceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false },
+});
+
+// ── Auth helpers ──────────────────────────────────────────────
+
+/** Verify Supabase JWT and return the user object, or null. */
+async function verifyJWT(token: string): Promise<{ id: string; email: string | undefined } | null> {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+      },
+    });
+    if (!res.ok) return null;
+    const user = await res.json() as { id: string; email?: string };
+    if (!user?.id) return null;
+    return { id: user.id, email: user.email };
+  } catch {
+    return null;
+  }
+}
+
+/** Check that the user has an active Pro plan. */
+async function checkProPlan(userId: string): Promise<boolean> {
+  const { data } = await serviceClient
+    .from("profiles")
+    .select("plan, subscription_status")
+    .eq("id", userId)
+    .single();
+  return data?.plan === "pro" && data?.subscription_status === "active";
+}
+
+/** Retrieve and decrypt the user's Resend API key + from_address from Vault. */
+async function getResendKey(userId: string): Promise<{ apiKey: string; fromAddress: string } | null> {
+  // Get the vault_secret_id for this user
+  const { data: keyRow } = await serviceClient
+    .from("resend_keys")
+    .select("vault_secret_id, from_address")
+    .eq("user_id", userId)
+    .single();
+
+  if (!keyRow) return null;
+
+  // Decrypt from Vault using service role
+  const { data: vaultRow } = await serviceClient
+    .from("vault.decrypted_secrets")
+    .select("decrypted_secret")
+    .eq("id", keyRow.vault_secret_id)
+    .single();
+
+  if (!vaultRow?.decrypted_secret) return null;
+
+  return {
+    apiKey:      vaultRow.decrypted_secret as string,
+    fromAddress: keyRow.from_address as string,
+  };
+}
+
+// ── Resend API wrapper ────────────────────────────────────────
 
 async function resendFetch(apiKey: string, method: string, path: string, body?: object) {
   const res = await fetch(`${RESEND_API}${path}`, {
@@ -21,9 +92,11 @@ async function resendFetch(apiKey: string, method: string, path: string, body?: 
   return json;
 }
 
+// ── MCP server factory ────────────────────────────────────────
+
 function makeServer(apiKey: string, fromAddress: string) {
   const server = new Server(
-    { name: "moosermail", version: "1.0.0" },
+    { name: "moosermail", version: "2.0.0" },
     { capabilities: { tools: {} } }
   );
 
@@ -109,12 +182,12 @@ function makeServer(apiKey: string, fromAddress: string) {
 
       case "write_draft": {
         const lines = [
-          `DRAFT — NOT SENT`,
-          `─────────────────────────`,
+          "DRAFT — NOT SENT",
+          "─────────────────────────",
           `To:      ${a.to}`,
           ...(a.cc ? [`CC:      ${a.cc}`] : []),
           `Subject: ${a.subject}`,
-          ``,
+          "",
           String(a.body),
         ];
         return { content: [{ type: "text", text: lines.join("\n") }] };
@@ -124,12 +197,6 @@ function makeServer(apiKey: string, fromAddress: string) {
         if (!SEND_ENABLED) {
           return {
             content: [{ type: "text", text: "Sending is disabled. The server operator must set SEND_ENABLED=true to allow agents to send email." }],
-            isError: true,
-          };
-        }
-        if (!fromAddress) {
-          return {
-            content: [{ type: "text", text: "No from address. Pass X-From-Address header with your Resend sender address." }],
             isError: true,
           };
         }
@@ -149,21 +216,50 @@ function makeServer(apiKey: string, fromAddress: string) {
   return server;
 }
 
+// ── Express app ───────────────────────────────────────────────
+
 const app = express();
 app.use(express.json());
 
-function extractAuth(req: Request): { apiKey: string; fromAddress: string } | null {
+/** Authenticate request via Supabase JWT, check Pro plan, decrypt Resend key. */
+async function authenticate(req: Request, res: Response): Promise<{ apiKey: string; fromAddress: string } | null> {
   const auth = req.headers.authorization;
-  if (!auth?.startsWith("Bearer ")) return null;
-  const apiKey     = auth.slice(7).trim();
-  const fromAddress = (req.headers["x-from-address"] as string) ?? "";
-  return { apiKey, fromAddress };
+  if (!auth?.startsWith("Bearer ")) {
+    res.status(401).json({ error: "Missing Authorization: Bearer <supabase_access_token>" });
+    return null;
+  }
+
+  const token = auth.slice(7).trim();
+
+  const user = await verifyJWT(token);
+  if (!user) {
+    res.status(401).json({ error: "Invalid or expired Supabase token" });
+    return null;
+  }
+
+  const isPro = await checkProPlan(user.id);
+  if (!isPro) {
+    res.status(403).json({
+      error: "MCP access requires the Pro plan ($6.99/mo). Upgrade at https://app.mooser.email/billing",
+    });
+    return null;
+  }
+
+  const credentials = await getResendKey(user.id);
+  if (!credentials) {
+    res.status(403).json({
+      error: "No Resend API key found. Add your key at https://app.mooser.email/settings",
+    });
+    return null;
+  }
+
+  return credentials;
 }
 
 app.post("/mcp", async (req: Request, res: Response) => {
-  const auth = extractAuth(req);
-  if (!auth) { res.status(401).json({ error: "Missing Authorization: Bearer <resend_api_key>" }); return; }
-  const server    = makeServer(auth.apiKey, auth.fromAddress);
+  const creds = await authenticate(req, res);
+  if (!creds) return;
+  const server    = makeServer(creds.apiKey, creds.fromAddress);
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
   await server.connect(transport);
   await transport.handleRequest(req, res, req.body);
@@ -171,9 +267,9 @@ app.post("/mcp", async (req: Request, res: Response) => {
 });
 
 app.get("/mcp", async (req: Request, res: Response) => {
-  const auth = extractAuth(req);
-  if (!auth) { res.status(401).json({ error: "Missing Authorization: Bearer <resend_api_key>" }); return; }
-  const server    = makeServer(auth.apiKey, auth.fromAddress);
+  const creds = await authenticate(req, res);
+  if (!creds) return;
+  const server    = makeServer(creds.apiKey, creds.fromAddress);
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
   await server.connect(transport);
   await transport.handleRequest(req, res);
@@ -182,12 +278,12 @@ app.get("/mcp", async (req: Request, res: Response) => {
 app.delete("/mcp", (_req, res) => { res.status(405).end(); });
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, send_enabled: SEND_ENABLED });
+  res.json({ ok: true, send_enabled: SEND_ENABLED, auth: "supabase-jwt" });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`moosermail-mcp  →  0.0.0.0:${PORT}/mcp`);
   console.log(`send_enabled    →  ${SEND_ENABLED}`);
-  console.log(`auth            →  Authorization: Bearer <resend_api_key>`);
-  console.log(`from address    →  X-From-Address: <your@sender.com>`);
+  console.log(`auth            →  Authorization: Bearer <supabase_access_token>`);
+  console.log(`supabase        →  ${SUPABASE_URL}`);
 });

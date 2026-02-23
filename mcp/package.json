@@ -1,7 +1,7 @@
 {
   "name": "moosermail-mcp",
-  "version": "1.0.0",
-  "description": "MCP server for Moosermail — lets AI agents read, draft, and send emails via Resend",
+  "version": "2.0.0",
+  "description": "MCP server for Moosermail — JWT-authenticated, Vault-backed email access for AI agents",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.0",
+    "@supabase/supabase-js": "^2.43.0",
     "express": "^4.19.0"
   },
   "devDependencies": {
