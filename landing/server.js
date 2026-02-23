@@ -31,6 +31,6 @@ createServer(async (req, res) => {
     res.writeHead(404);
     res.end("Not found");
   }
-}).listen(PORT, "127.0.0.1", () => {
+}).listen(PORT, "0.0.0.0", () => {
   console.log(`moosermail-landing  →  127.0.0.1:${PORT}`);
 });
