@@ -5,20 +5,13 @@ import express, { Request, Response } from "express";
 
 const RESEND_API  = "https://api.resend.com";
 const PORT        = parseInt(process.env.PORT ?? "4001");
-const API_KEY     = process.env.RESEND_API_KEY;
-const FROM_ADDR   = process.env.FROM_ADDRESS;
 const SEND_ENABLED = process.env.SEND_ENABLED === "true";
 
-if (!API_KEY) {
-  console.error("RESEND_API_KEY is not set");
-  process.exit(1);
-}
-
-async function resendFetch(method: string, path: string, body?: object) {
+async function resendFetch(apiKey: string, method: string, path: string, body?: object) {
   const res = await fetch(`${RESEND_API}${path}`, {
     method,
     headers: {
-      Authorization: `Bearer ${API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -28,7 +21,7 @@ async function resendFetch(method: string, path: string, body?: object) {
   return json;
 }
 
-function makeServer() {
+function makeServer(apiKey: string, fromAddress: string) {
   const server = new Server(
     { name: "moosermail", version: "1.0.0" },
     { capabilities: { tools: {} } }
@@ -42,10 +35,7 @@ function makeServer() {
         inputSchema: {
           type: "object",
           properties: {
-            limit: {
-              type: "number",
-              description: "How many to return. Default 20, max 100.",
-            },
+            limit: { type: "number", description: "How many to return. Default 20, max 100." },
           },
         },
       },
@@ -62,16 +52,15 @@ function makeServer() {
       },
       {
         name: "write_draft",
-        description:
-          "Compose an email draft. Returns the draft text for your review. Does NOT send anything.",
+        description: "Compose an email draft. Returns the draft for review. Does NOT send anything.",
         inputSchema: {
           type: "object",
           required: ["to", "subject", "body"],
           properties: {
-            to:      { type: "string", description: "Recipient address." },
-            subject: { type: "string", description: "Subject line." },
-            body:    { type: "string", description: "Plain text body." },
-            cc:      { type: "string", description: "CC address (optional)." },
+            to:      { type: "string" },
+            subject: { type: "string" },
+            body:    { type: "string" },
+            cc:      { type: "string" },
           },
         },
       },
@@ -84,10 +73,10 @@ function makeServer() {
           type: "object",
           required: ["to", "subject", "body"],
           properties: {
-            to:      { type: "string", description: "Recipient address." },
-            subject: { type: "string", description: "Subject line." },
-            body:    { type: "string", description: "Plain text body." },
-            cc:      { type: "string", description: "CC address (optional)." },
+            to:      { type: "string" },
+            subject: { type: "string" },
+            body:    { type: "string" },
+            cc:      { type: "string" },
           },
         },
       },
@@ -101,13 +90,9 @@ function makeServer() {
     switch (name) {
       case "list_emails": {
         const limit = Math.min(Number(a.limit ?? 20), 100);
-        const data  = await resendFetch("GET", `/emails/receiving?limit=${limit}`) as { data?: Record<string, unknown>[] };
+        const data  = await resendFetch(apiKey, "GET", `/emails/receiving?limit=${limit}`) as { data?: Record<string, unknown>[] };
         const emails = data.data ?? [];
-
-        if (emails.length === 0) {
-          return { content: [{ type: "text", text: "Inbox is empty." }] };
-        }
-
+        if (emails.length === 0) return { content: [{ type: "text", text: "Inbox is empty." }] };
         const lines = emails.map((e, i) =>
           `${i + 1}. [${e.id}]\n   From: ${e.from}\n   Subject: ${e.subject}\n   Date: ${e.created_at}`
         );
@@ -115,17 +100,10 @@ function makeServer() {
       }
 
       case "read_email": {
-        const email = await resendFetch("GET", `/emails/receiving/${a.id}`) as Record<string, unknown>;
+        const email = await resendFetch(apiKey, "GET", `/emails/receiving/${a.id}`) as Record<string, unknown>;
         const to    = (email.to as string[] ?? []).join(", ");
         const body  = (email.text as string) || (email.html as string) || "(no body)";
-        const text  = [
-          `From:    ${email.from}`,
-          `To:      ${to}`,
-          `Subject: ${email.subject}`,
-          `Date:    ${email.created_at}`,
-          "",
-          body,
-        ].join("\n");
+        const text  = [`From:    ${email.from}`, `To:      ${to}`, `Subject: ${email.subject}`, `Date:    ${email.created_at}`, "", body].join("\n");
         return { content: [{ type: "text", text }] };
       }
 
@@ -145,28 +123,21 @@ function makeServer() {
       case "send_email": {
         if (!SEND_ENABLED) {
           return {
-            content: [{
-              type: "text",
-              text: "Sending is disabled. The server operator must set SEND_ENABLED=true to allow agents to send email.",
-            }],
+            content: [{ type: "text", text: "Sending is disabled. The server operator must set SEND_ENABLED=true to allow agents to send email." }],
             isError: true,
           };
         }
-        if (!FROM_ADDR) {
+        if (!fromAddress) {
           return {
-            content: [{ type: "text", text: "FROM_ADDRESS environment variable is not configured on this server." }],
+            content: [{ type: "text", text: "No from address. Pass X-From-Address header with your Resend sender address." }],
             isError: true,
           };
         }
         const payload: Record<string, unknown> = {
-          from:    FROM_ADDR,
-          to:      [a.to],
-          subject: a.subject,
-          text:    a.body,
+          from: fromAddress, to: [a.to], subject: a.subject, text: a.body,
         };
         if (a.cc) payload.cc = [a.cc];
-
-        const result = await resendFetch("POST", "/emails", payload) as { id?: string };
+        const result = await resendFetch(apiKey, "POST", "/emails", payload) as { id?: string };
         return { content: [{ type: "text", text: `Sent. Resend ID: ${result.id}` }] };
       }
 
@@ -181,8 +152,18 @@ function makeServer() {
 const app = express();
 app.use(express.json());
 
+function extractAuth(req: Request): { apiKey: string; fromAddress: string } | null {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith("Bearer ")) return null;
+  const apiKey     = auth.slice(7).trim();
+  const fromAddress = (req.headers["x-from-address"] as string) ?? "";
+  return { apiKey, fromAddress };
+}
+
 app.post("/mcp", async (req: Request, res: Response) => {
-  const server    = makeServer();
+  const auth = extractAuth(req);
+  if (!auth) { res.status(401).json({ error: "Missing Authorization: Bearer <resend_api_key>" }); return; }
+  const server    = makeServer(auth.apiKey, auth.fromAddress);
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
   await server.connect(transport);
   await transport.handleRequest(req, res, req.body);
@@ -190,7 +171,9 @@ app.post("/mcp", async (req: Request, res: Response) => {
 });
 
 app.get("/mcp", async (req: Request, res: Response) => {
-  const server    = makeServer();
+  const auth = extractAuth(req);
+  if (!auth) { res.status(401).json({ error: "Missing Authorization: Bearer <resend_api_key>" }); return; }
+  const server    = makeServer(auth.apiKey, auth.fromAddress);
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
   await server.connect(transport);
   await transport.handleRequest(req, res);
@@ -202,7 +185,9 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, send_enabled: SEND_ENABLED });
 });
 
-app.listen(PORT, "127.0.0.1", () => {
-  console.log(`moosermail-mcp  →  127.0.0.1:${PORT}/mcp`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`moosermail-mcp  →  0.0.0.0:${PORT}/mcp`);
   console.log(`send_enabled    →  ${SEND_ENABLED}`);
+  console.log(`auth            →  Authorization: Bearer <resend_api_key>`);
+  console.log(`from address    →  X-From-Address: <your@sender.com>`);
 });

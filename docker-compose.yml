@@ -16,6 +16,4 @@ services:
       - "127.0.0.1:4001:4001"
     environment:
       PORT: 4001
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      FROM_ADDRESS: ${FROM_ADDRESS}
       SEND_ENABLED: ${SEND_ENABLED:-false}
