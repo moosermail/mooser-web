@@ -1,0 +1,21 @@
+services:
+  landing:
+    build: ./landing
+    container_name: mooser-landing
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4000:4000"
+    environment:
+      PORT: 4000
+
+  mcp:
+    build: ./mcp
+    container_name: mooser-mcp
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4001:4001"
+    environment:
+      PORT: 4001
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      FROM_ADDRESS: ${FROM_ADDRESS}
+      SEND_ENABLED: ${SEND_ENABLED:-false}
