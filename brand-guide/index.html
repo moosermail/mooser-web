@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOOSERMAIL — BRAND GUIDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0d0d0d;
+      --white: #f2f2f2;
+      --grey:  #888888;
+      --bg:    #f2f2f2;
+      --fg:    #0d0d0d;
+      --mid:   #d0d0d0;
+      --card:  #ffffff;
+      --shadow:    0 4px 24px rgba(0,0,0,.10);
+      --shadow-lg: 0 12px 48px rgba(0,0,0,.16);
+    }
+    [data-theme="dark"] {
+      --bg:    #0d0d0d;
+      --fg:    #f2f2f2;
+      --mid:   #2a2a2a;
+      --card:  #171717;
+      --shadow:    0 4px 24px rgba(0,0,0,.5);
+      --shadow-lg: 0 12px 48px rgba(0,0,0,.6);
+    }
+
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      transition: background .3s, color .3s;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    /* ── HEADER ── */
+    .guide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--fg);
+    }
+    .guide-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: .15em;
+    }
+    .guide-meta {
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--grey);
+      text-align: right;
+    }
+    .theme-toggle {
+      background: var(--mid);
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      width: 40px;
+      height: 22px;
+      position: relative;
+      transition: background .3s;
+    }
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 4px; left: 4px;
+      width: 14px; height: 14px;
+      border-radius: 100px;
+      background: var(--fg);
+      transition: transform .3s;
+    }
+    [data-theme="dark"] .theme-toggle::after { transform: translateX(18px); }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 5rem; }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: .35em;
+      color: var(--grey);
+      margin-bottom: 2rem;
+      padding-bottom: .75rem;
+      border-bottom: 1px solid var(--mid);
+    }
+
+    /* ── COLORS ── */
+    .color-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .swatch {
+      border-radius: 20px;
+      width: 160px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .swatch-block { height: 100px; }
+    .swatch-info {
+      padding: 1rem;
+      background: var(--card);
+    }
+    .swatch-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: .1em;
+      display: block;
+    }
+    .swatch-hex {
+      font-size: .7rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--grey);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .type-row { display: flex; flex-direction: column; gap: 2.5rem; }
+    .type-sample { padding: 2rem; background: var(--card); border-radius: 20px; box-shadow: var(--shadow); }
+    .type-meta {
+      font-size: .65rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 1rem;
+      font-family: 'Courier New', monospace;
+    }
+    .t-display { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; letter-spacing: .02em; line-height: 1; }
+    .t-heading { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: .05em; }
+    .t-subhead { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: .15em; }
+    .t-body     { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; text-transform: uppercase; letter-spacing: .1em; color: var(--grey); line-height: 1.7; }
+    .t-label    { font-family: 'Space Grotesk', sans-serif; font-size: .7rem; text-transform: uppercase; letter-spacing: .25em; color: var(--grey); }
+    .t-code     { font-family: 'Courier New', monospace; font-size: .85rem; text-transform: uppercase; letter-spacing: .1em; }
+
+    /* ── COMPONENTS ── */
+    .comp-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+
+    .btn {
+      display: inline-block;
+      padding: .9rem 2rem;
+      border-radius: 100px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: .1em;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .btn-primary { background: var(--fg); color: var(--bg); box-shadow: var(--shadow); }
+    .btn-secondary { background: transparent; color: var(--fg); border: 2px solid var(--fg); }
+    .btn-ghost { background: var(--mid); color: var(--grey); }
+    .btn-sm { padding: .5rem 1.2rem; font-size: .8rem; }
+
+    .badge {
+      display: inline-block;
+      padding: .25rem .9rem;
+      border-radius: 100px;
+      font-size: .65rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .badge-solid { background: var(--fg); color: var(--bg); }
+    .badge-outline { border: 1.5px solid var(--fg); color: var(--fg); }
+    .badge-ghost { background: var(--mid); color: var(--grey); }
+
+    .pill-input {
+      padding: .8rem 1.5rem;
+      border-radius: 100px;
+      border: 2px solid var(--mid);
+      background: var(--card);
+      color: var(--fg);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .85rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .pill-input:focus { border-color: var(--fg); }
+    .pill-input::placeholder { color: var(--grey); }
+
+    .card-sample {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      max-width: 300px;
+    }
+    .card-sample h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: .06em;
+      margin-bottom: .5rem;
+    }
+    .card-sample p {
+      font-size: .8rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+
+    /* ── LOGO USAGE ── */
+    .logo-row { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .logo-block {
+      padding: 3rem;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow);
+      min-width: 180px;
+    }
+    .logo-block img { width: 80px; height: 80px; object-fit: contain; }
+    .logo-block span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .7rem;
+      letter-spacing: .2em;
+      color: var(--grey);
+    }
+    .logo-light { background: #f2f2f2; }
+    .logo-dark  { background: #0d0d0d; }
+
+    /* ── DO/DONT ── */
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .rule {
+      padding: 1.5rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+    .rule-do { background: var(--card); border-left: 4px solid var(--fg); }
+    .rule-dont { background: var(--card); border-left: 4px solid var(--grey); }
+    .rule-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .75rem;
+      letter-spacing: .3em;
+      margin-bottom: .75rem;
+    }
+    .rule-do .rule-label { color: var(--fg); }
+    .rule-dont .rule-label { color: var(--grey); }
+    .rule p {
+      font-size: .8rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 600px) {
+      .do-dont { grid-template-columns: 1fr; }
+      .color-row, .logo-row { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="guide-header">
+    <div>
+      <div class="guide-title">MOOSERMAIL BRAND GUIDE</div>
+      <div class="guide-meta">VERSION 1.0 · 2025</div>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+  </header>
+
+  <!-- LOGO -->
+  <div class="section">
+    <div class="section-title">LOGO</div>
+    <div class="logo-row">
+      <div class="logo-block logo-light">
+        <img src="../landing/assets/mooser-comp.png" alt="Moosermail on light">
+        <span>ON LIGHT</span>
+      </div>
+      <div class="logo-block logo-dark">
+        <img src="../landing/assets/mooser-comp.png" alt="Moosermail on dark">
+        <span>ON DARK</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLORS -->
+  <div class="section">
+    <div class="section-title">COLORS — THREE. THAT'S IT.</div>
+    <div class="color-row">
+      <div class="swatch">
+        <div class="swatch-block" style="background:#0d0d0d"></div>
+        <div class="swatch-info">
+          <span class="swatch-name">BLACK</span>
+          <span class="swatch-hex">#0D0D0D</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#888888"></div>
+        <div class="swatch-info">
+          <span class="swatch-name">GREY</span>
+          <span class="swatch-hex">#888888</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#f2f2f2; border: 1px solid #e0e0e0"></div>
+        <div class="swatch-info">
+          <span class="swatch-name">WHITE</span>
+          <span class="swatch-hex">#F2F2F2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="section">
+    <div class="section-title">TYPOGRAPHY — BEBAS NEUE + SPACE GROTESK</div>
+    <div class="type-row">
+      <div class="type-sample">
+        <div class="type-meta">DISPLAY / HERO — BEBAS NEUE 80PX</div>
+        <div class="t-display">MOOSERMAIL</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">HEADING — BEBAS NEUE 40PX</div>
+        <div class="t-heading">THE MISSING INBOX FOR RESEND</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">SUBHEADING — BEBAS NEUE 20PX</div>
+        <div class="t-subhead">READ, REPLY, COMPOSE — NO API REQUIRED</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">BODY — SPACE GROTESK 14PX UPPERCASE</div>
+        <div class="t-body">Respond to inbound emails directly from your browser. No API calls, no Postman, no prayer. Just click reply.</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">LABEL — SPACE GROTESK 11PX</div>
+        <div class="t-label">SECTION LABEL · VERSION 1.0 · REPLY</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">CODE / MONO — COURIER NEW</div>
+        <div class="t-code">pip install inbox-py</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPONENTS -->
+  <div class="section">
+    <div class="section-title">COMPONENTS — PILL SHAPES ONLY</div>
+
+    <div style="margin-bottom:2rem">
+      <div class="type-meta" style="margin-bottom:1rem">BUTTONS</div>
+      <div class="comp-row">
+        <button class="btn btn-primary">GET STARTED</button>
+        <button class="btn btn-secondary">LEARN MORE</button>
+        <button class="btn btn-ghost">CANCEL</button>
+        <button class="btn btn-primary btn-sm">SMALL</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:2rem">
+      <div class="type-meta" style="margin-bottom:1rem">BADGES</div>
+      <div class="comp-row">
+        <span class="badge badge-solid">REPLY</span>
+        <span class="badge badge-outline">COMPOSE</span>
+        <span class="badge badge-ghost">DRAFT</span>
+        <span class="badge badge-ghost">MCP</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:2rem">
+      <div class="type-meta" style="margin-bottom:1rem">INPUT</div>
+      <div class="comp-row">
+        <input class="pill-input" type="text" placeholder="TO: EMAIL ADDRESS">
+      </div>
+    </div>
+
+    <div>
+      <div class="type-meta" style="margin-bottom:1rem">CARD</div>
+      <div class="comp-row">
+        <div class="card-sample">
+          <span class="badge badge-ghost" style="margin-bottom:1rem">INBOX</span>
+          <h3>READ EVERYTHING</h3>
+          <p>All your Resend inbound emails in one clean, fast view.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHADOWS -->
+  <div class="section">
+    <div class="section-title">SHADOWS</div>
+    <div class="comp-row">
+      <div style="background:var(--card);padding:2rem 2.5rem;border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,.10)">
+        <div class="type-meta">DEFAULT</div>
+        <div class="t-subhead" style="font-size:.9rem">0 4px 24px / 10%</div>
+      </div>
+      <div style="background:var(--card);padding:2rem 2.5rem;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.16)">
+        <div class="type-meta">ELEVATED</div>
+        <div class="t-subhead" style="font-size:.9rem">0 12px 48px / 16%</div>
+      </div>
+      <div style="background:var(--card);padding:2rem 2.5rem;border-radius:20px;box-shadow:0 32px 96px rgba(0,0,0,.22)">
+        <div class="type-meta">FLOATING</div>
+        <div class="t-subhead" style="font-size:.9rem">0 32px 96px / 22%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DO / DON'T -->
+  <div class="section">
+    <div class="section-title">DO / DON'T</div>
+    <div class="do-dont">
+      <div class="rule rule-do">
+        <div class="rule-label">DO</div>
+        <p>Use Bebas Neue for all headings, CTAs, and display text.</p>
+      </div>
+      <div class="rule rule-dont">
+        <div class="rule-label">DON'T</div>
+        <p>Use script fonts, colored text outside the three-color palette, or rounded rectangle shapes.</p>
+      </div>
+      <div class="rule rule-do">
+        <div class="rule-label">DO</div>
+        <p>Use pill shapes (border-radius: 100px) for all interactive elements.</p>
+      </div>
+      <div class="rule rule-dont">
+        <div class="rule-label">DON'T</div>
+        <p>Use sharp corners or square buttons. Everything should feel soft and approachable.</p>
+      </div>
+      <div class="rule rule-do">
+        <div class="rule-label">DO</div>
+        <p>Keep all text uppercase. The voice is confident and direct.</p>
+      </div>
+      <div class="rule rule-dont">
+        <div class="rule-label">DON'T</div>
+        <p>Mix case. No sentence case, no title case. All caps, always.</p>
+      </div>
+      <div class="rule rule-do">
+        <div class="rule-label">DO</div>
+        <p>Use the logo on both light and dark backgrounds — it works on both.</p>
+      </div>
+      <div class="rule rule-dont">
+        <div class="rule-label">DON'T</div>
+        <p>Recolor, rotate, stretch, or add effects to the logo. Use it as-is.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const saved = localStorage.getItem('theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    }
+  </script>
+</body>
+</html>
