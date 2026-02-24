@@ -15,6 +15,8 @@ export default function BillingClient({ plan, status, hasCustomer }: Props) {
 
   const supabase = createSupabaseBrowser();
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+
   async function checkout(tier: "basic" | "pro") {
     setError("");
     setLoading(tier);
@@ -22,7 +24,7 @@ export default function BillingClient({ plan, status, hasCustomer }: Props) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setError("Not signed in"); setLoading(null); return; }
 
-    const res = await fetch("/api/checkout", {
+    const res = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +52,7 @@ export default function BillingClient({ plan, status, hasCustomer }: Props) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setError("Not signed in"); setLoading(null); return; }
 
-    const res = await fetch("/api/portal", {
+    const res = await fetch(`${supabaseUrl}/functions/v1/create-portal`, {
       method: "POST",
       headers: { Authorization: `Bearer ${session.access_token}` },
     });

@@ -18,7 +18,8 @@ export async function getUserResendKey(
   if (!keyRow) return null;
 
   const { data: vaultRow } = await serviceClient
-    .from("vault.decrypted_secrets")
+    .schema("vault")
+    .from("decrypted_secrets")
     .select("decrypted_secret")
     .eq("id", keyRow.vault_secret_id)
     .single();

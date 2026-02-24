@@ -46,7 +46,8 @@ export default function ComposePage() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setError("Not signed in"); setSending(false); return; }
 
-    const res = await fetch("/api/send", {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const res = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
