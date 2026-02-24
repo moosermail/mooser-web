@@ -50,6 +50,7 @@ export default function SignupPage() {
     <div className="auth-page">
       <div className="auth-card">
         <a className="auth-logo" href="https://mooser.email">
+          <img src="/logo.png" alt="Moosermail" style={{ width: 56, height: 56, objectFit: "contain" }} />
           <span>MOOSERMAIL</span>
         </a>
 
