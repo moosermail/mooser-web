@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createSupabaseServer } from "@/lib/supabase";
+import { createSupabaseServer } from "@/lib/supabase-server";
 import AppNav from "@/components/AppNav";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {

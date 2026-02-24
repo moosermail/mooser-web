@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { createSupabaseServer } from "@/lib/supabase";
+import { createSupabaseServer } from "@/lib/supabase-server";
 import { getUserResendKey } from "@/lib/vault";
 import { resendFetch } from "@/lib/resend";
 

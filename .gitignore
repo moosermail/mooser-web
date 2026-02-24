@@ -4,3 +4,4 @@ mcp/node_modules/
 .env
 *.env
 .DS_Store
+keys.txt
