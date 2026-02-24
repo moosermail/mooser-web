@@ -24,7 +24,7 @@ export default async function EmailPage({ params }: { params: { id: string } }) 
 
   let email: EmailDetail;
   try {
-    email = await resendFetch(creds.apiKey, "GET", `/emails/receiving/${params.id}`) as EmailDetail;
+    email = await resendFetch(creds.apiKey, "GET", `/emails/receiving/${params.id}`) as unknown as EmailDetail;
   } catch {
     notFound();
   }
