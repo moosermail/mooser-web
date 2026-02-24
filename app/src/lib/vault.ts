@@ -1,17 +1,14 @@
-// Server-side Vault key retrieval.
-// Uses the Supabase service role to decrypt the user's Resend key from Vault.
-
 import { createClient } from "@supabase/supabase-js";
-
-const serviceClient = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } }
-);
 
 export async function getUserResendKey(
   userId: string
 ): Promise<{ apiKey: string; fromAddress: string } | null> {
+  const serviceClient = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+
   const { data: keyRow } = await serviceClient
     .from("resend_keys")
     .select("vault_secret_id, from_address")

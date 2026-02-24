@@ -4,12 +4,6 @@ import { createClient } from "@supabase/supabase-js";
 import { getUserResendKey } from "@/lib/vault";
 import { resendFetch } from "@/lib/resend";
 
-const serviceClient = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } }
-);
-
 export async function POST(req: NextRequest) {
   const auth = req.headers.get("authorization");
   if (!auth?.startsWith("Bearer ")) {
@@ -27,7 +21,12 @@ export async function POST(req: NextRequest) {
 
   const user = await userRes.json() as { id: string };
 
-  // Check active subscription (Basic or Pro can send)
+  const serviceClient = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+
   const { data: profile } = await serviceClient
     .from("profiles")
     .select("plan, subscription_status")
@@ -50,13 +49,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const payload: Record<string, unknown> = {
-      from:    creds.fromAddress,
-      to:      [body.to],
-      subject: body.subject,
-      text:    body.body,
+      from: creds.fromAddress, to: [body.to], subject: body.subject, text: body.body,
     };
     if (body.cc) payload.cc = [body.cc];
-
     const result = await resendFetch(creds.apiKey, "POST", "/emails", payload) as { id?: string };
     return NextResponse.json({ id: result.id });
   } catch (err) {
