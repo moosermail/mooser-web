@@ -5,7 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MOOSERMAIL - THE MISSING INBOX FOR RESEND</title>
   <meta name="description" content="Read, reply, and compose Resend emails from your browser. No API calls.">
+  <meta property="og:title" content="Moosermail - The Missing Inbox for Resend" />
+  <meta property="og:description" content="Read, reply, compose. Templates, triggers, cron, pipes. Free forever." />
+  <meta property="og:image" content="https://mooser.email/assets/ads/og-image.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mooser.email" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://mooser.email/assets/ads/og-image.jpg" />
   <link rel="icon" href="assets/mooser-comp.png">
+  <script defer data-domain="mooser.email" src="https://plausible.io/js/script.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
@@ -260,6 +268,7 @@
       transform: translateY(-4px);
       box-shadow: var(--shadow-lg);
     }
+    a.card { text-decoration: none; color: inherit; }
     .card-tag {
       display: inline-block;
       font-family: 'Bebas Neue', sans-serif;
@@ -440,6 +449,21 @@
       text-transform: uppercase;
       color: var(--grey);
     }
+    .screenshot-card {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--mid);
+      cursor: zoom-in;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .screenshot-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: var(--shadow-xl);
+    }
+    @media (max-width: 640px) {
+      .screenshot-card:hover { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -457,8 +481,9 @@
       <img src="assets/mooser-comp.png" alt="Moosermail">
       MOOSERMAIL
     </a>
-    <a href="#pricing" class="nav-link">PRICING</a>
-    <a href="#byok" class="nav-link">SECURITY</a>
+    <a href="features/security.html" class="nav-link">SECURITY</a>
+    <a href="https://app.mooser.email/docs" class="nav-link">DOCS</a>
+    <a href="https://status.mooser.email" class="nav-link">STATUS</a>
     <a href="https://app.mooser.email/login" class="pill-btn" style="padding:.5rem 1.2rem;font-size:.85rem;">SIGN IN</a>
   </nav>
 
@@ -466,8 +491,11 @@
   <section class="hero">
     <img src="assets/mooser-comp.png" alt="Moosermail" class="hero-logo">
     <h1>THE MISSING<span>INBOX FOR</span>RESEND.</h1>
-    <p class="hero-sub">Read, reply, and compose. No API calls.</p>
-    <a href="https://app.mooser.email/signup" class="pill-btn">GET STARTED - FROM $3.99/MO</a>
+    <p class="hero-sub">Read, reply, and compose. No API calls. Free forever.</p>
+    <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;justify-content:center;">
+      <a href="https://app.mooser.email/signup" class="pill-btn">CREATE FREE ACCOUNT</a>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;color:var(--grey);">NO CARD. NO CATCH.</span>
+    </div>
     <span class="hero-scroll">SCROLL</span>
   </section>
 
@@ -484,100 +512,154 @@
       <h2>EVERYTHING YOUR INBOX NEEDS</h2>
     </div>
     <div class="cards">
-      <div class="card">
+      <a class="card" href="features/inbox.html">
         <span class="card-tag">INBOX</span>
         <h3>READ EVERYTHING</h3>
         <p>All your Resend inbound emails in one clean, fast view. No dashboard switching.</p>
-      </div>
-      <div class="card">
+      </a>
+      <a class="card" href="features/compose.html">
         <span class="card-tag">REPLY</span>
         <h3>JUST HIT REPLY</h3>
         <p>Respond to inbound emails directly from your browser. One click. Done.</p>
-      </div>
-      <div class="card">
+      </a>
+      <a class="card" href="features/compose.html">
         <span class="card-tag">COMPOSE</span>
         <h3>SEND NEW EMAILS</h3>
         <p>Draft and send outbound emails from any device. Your Resend key handles the rest.</p>
-      </div>
-      <div class="card">
+      </a>
+      <a class="card" href="features/inbox.html">
         <span class="card-tag">DRAFTS</span>
         <h3>SAVE YOUR WORK</h3>
         <p>Write now, send later. Drafts are yours until you're ready.</p>
-      </div>
-      <div class="card">
+      </a>
+      <a class="card" href="features/inbox.html">
         <span class="card-tag">SENT</span>
         <h3>TRACK WHAT YOU SENT</h3>
         <p>Full sent history so you always know what went out and when.</p>
-      </div>
-      <div class="card">
+      </a>
+      <a class="card" href="features/mcp.html">
         <span class="card-tag">MCP</span>
-        <span class="card-tag" style="background:var(--fg);color:var(--bg);margin-left:.5rem;">PRO</span>
-        <h3>AGENTS READ YOUR MAIL</h3>
-        <p>Let your AI agent check, draft, and send emails on your behalf. MCP access requires the Pro plan.</p>
+        <h3>AI AGENTS IN YOUR INBOX</h3>
+        <p>12 MCP tools. Claude reads, drafts, sends, manages templates, and fires triggers on your behalf.</p>
+      </a>
+      <a class="card" href="features/templates.html">
+        <span class="card-tag">TEMPLATES</span>
+        <h3>BUILD ONCE. SEND FOREVER.</h3>
+        <p>HTML email templates with {{variable}} placeholders. Fill in the blanks at send time via API or UI.</p>
+      </a>
+      <a class="card" href="features/triggers.html">
+        <span class="card-tag">TRIGGERS</span>
+        <h3>ONE-URL EMAIL API</h3>
+        <p>Generate a trigger key, POST to it with variables, and a template email fires. No auth headers. No SDKs.</p>
+      </a>
+      <a class="card" href="features/pipes.html">
+        <span class="card-tag">PIPES</span>
+        <h3>AUTO-PROCESS INBOUND</h3>
+        <p>Webhook to Slack, forward to support, auto-reply, tag, or hide. Rules fire when matching emails arrive.</p>
+      </a>
+      <a class="card" href="features/cron.html">
+        <span class="card-tag">CRON</span>
+        <h3>SCHEDULED SENDS</h3>
+        <p>Weekly digests, daily reports, monthly invoices. Pick a template, set a schedule, walk away.</p>
+      </a>
+      <a class="card" href="features/delivery.html">
+        <span class="card-tag">DELIVERY</span>
+        <h3>TRACK EVERYTHING</h3>
+        <p>Opens, clicks, bounces, complaints. Resend webhook integration with real-time stats.</p>
+      </a>
+      <a class="card" href="features/contacts.html">
+        <span class="card-tag">CONTACTS</span>
+        <h3>ADDRESS BOOK</h3>
+        <p>Auto-collected from your send history. Search, tag, and email contacts directly.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- PRODUCT SCREENSHOTS -->
+  <section style="padding:5rem 1.5rem;max-width:1100px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <p class="section-label">SEE IT IN ACTION</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vw,4rem);letter-spacing:.04em;">THE PRODUCT</h2>
+    </div>
+    <div style="display:grid;gap:1.5rem;">
+      <!-- Inbox -->
+      <div class="screenshot-card" onclick="openLightbox(this.querySelector('img').src)">
+        <img src="assets/ads/demo-inbox.jpg" alt="Moosermail inbox with real emails" style="width:100%;display:block;" loading="lazy" />
       </div>
+      <!-- Row: Compose + Automations -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+        <div class="screenshot-card" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="assets/ads/demo-compose.jpg" alt="Compose with markdown, chip bubbles, mass send" style="width:100%;display:block;" loading="lazy" />
+        </div>
+        <div class="screenshot-card" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="assets/ads/demo-automations-pipes.jpg" alt="Pipes: auto-forward, webhook, auto-reply" style="width:100%;display:block;" loading="lazy" />
+        </div>
+      </div>
+      <!-- Row: Analytics + Contacts -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+        <div class="screenshot-card" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="assets/ads/demo-analytics.jpg" alt="Delivery tracking: sent, delivered, opened, clicked" style="width:100%;display:block;" loading="lazy" />
+        </div>
+        <div class="screenshot-card" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="assets/ads/demo-contacts.jpg" alt="Address book with auto-collected contacts" style="width:100%;display:block;" loading="lazy" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;cursor:zoom-out;align-items:center;justify-content:center;">
+      <img id="lightbox-img" src="" style="max-width:92vw;max-height:92vh;border-radius:12px;box-shadow:0 32px 96px rgba(0,0,0,.5);" />
     </div>
   </section>
 
   <!-- BYOK SECTION -->
-  <div class="problem" id="byok">
+  <a href="features/security.html" class="problem" id="byok" style="display:block;text-decoration:none;color:inherit;cursor:pointer;margin-bottom:0;">
     <h2>YOUR KEY. <em>YOUR DATA.</em></h2>
-    <p>Bring your own Resend API key. We store it securely - it never leaves our servers in plain text.</p>
-  </div>
-
-  <!-- CLI STRIP -->
-  <div class="cli-strip">
-    <div class="cli-inner">
-      <p class="section-label">TERMINAL FIRST</p>
-      <h2>PREFER THE COMMAND LINE? WE STARTED THERE.</h2>
-      <p>The full CLI is open source and available on PyPI. Works anywhere Python does.</p>
-      <span class="code-pill">pip install inbox-py</span>
-    </div>
-  </div>
+    <p>AES-256-GCM encryption. Non-root containers. Read-only filesystems. Click to read our full security page.</p>
+  </a>
 
   <!-- PRICING -->
   <section class="pricing" id="pricing">
     <p class="section-label">PRICING</p>
-    <h2>SIMPLE, TRANSPARENT PRICING.</h2>
-    <div class="pricing-grid">
+    <h2>FREE. NOT FREEMIUM. FREE.</h2>
+    <div class="pricing-grid" style="grid-template-columns:1fr;max-width:420px;margin:0 auto;">
 
-      <!-- Basic -->
-      <div class="price-card">
-        <div class="price-plan-name">BASIC</div>
-        <div class="price">$3.99</div>
-        <p class="price-per">PER MONTH</p>
+      <div class="price-card featured">
+        <div class="price-plan-name">MOOSERMAIL</div>
+        <div class="price">$0</div>
+        <p class="price-per">FOREVER</p>
         <ul class="price-features">
-          <li>Web inbox</li>
-          <li>Read, reply, compose</li>
-          <li>Drafts &amp; sent history</li>
-          <li>CLI included free</li>
-          <li>Cancel anytime</li>
+          <li>Full web inbox with search</li>
+          <li>Read, reply, compose (text, HTML, markdown)</li>
+          <li>Templates with {{variables}}</li>
+          <li>API triggers + cron scheduling</li>
+          <li>Pipes (webhook, forward, auto-reply)</li>
+          <li>12-tool MCP for AI agents</li>
+          <li>Delivery tracking (opens, clicks, bounces)</li>
+          <li>Contacts / address book</li>
+          <li>All themes unlocked</li>
         </ul>
         <a href="https://app.mooser.email/signup" class="pill-btn" style="width:100%;text-align:center;font-size:1rem;">GET STARTED</a>
       </div>
 
-      <!-- Pro -->
-      <div class="price-card featured">
-        <div class="price-plan-name">
-          PRO
-          <span class="price-badge">BEST VALUE</span>
-        </div>
-        <div class="price">$6.99</div>
-        <p class="price-per">PER MONTH</p>
-        <ul class="price-features">
-          <li>Everything in Basic</li>
-          <li>MCP agent access</li>
-          <li>AI reads your mail</li>
-          <li>JWT-secured auth</li>
-          <li>Cancel anytime</li>
-        </ul>
-        <a href="https://app.mooser.email/signup" class="pill-btn" style="width:100%;text-align:center;font-size:1rem;">GET PRO</a>
-      </div>
-
     </div>
     <p style="margin-top:1.5rem;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);">
-      Both plans require your own Resend account. Only needs Send + Receive Email permissions.
+      No subscriptions. No tiers. No upgrade nags. Just bring your own Resend API key.
     </p>
   </section>
+
+  <!-- CLI STRIP -->
+  <div class="cli-strip">
+    <div class="cli-inner">
+      <p class="section-label">OPEN SOURCE</p>
+      <h2>BUILT IN PUBLIC. FORK IT. SELF-HOST IT.</h2>
+      <p>The CLI and the web app are both open source.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:.5rem;">
+        <a href="https://github.com/moosermail/moosermail" class="code-pill" style="text-decoration:none;color:inherit;">CLI: github.com/moosermail/moosermail</a>
+        <a href="https://github.com/moosermail/mooser-web" class="code-pill" style="text-decoration:none;color:inherit;">WEB: github.com/moosermail/mooser-web</a>
+      </div>
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer>
@@ -586,11 +668,18 @@
       MOOSERMAIL
     </a>
     <ul class="footer-links">
-      <li><a href="https://github.com/moosermail/mooser-web">GitHub</a></li>
+      <li><a href="https://github.com/moosermail/moosermail">GitHub</a></li>
       <li><a href="https://app.mooser.email/login">Sign In</a></li>
       <li><a href="https://app.mooser.email/signup">Get Started</a></li>
+      <li><a href="https://status.mooser.email">Status</a></li>
     </ul>
-    <span class="footer-copy">2025 MOOSERMAIL</span>
+    <span class="footer-copy">2025 — 2026 MOOSERMAIL</span>
+  <div style="text-align:center;padding:1rem 0;border-top:1px solid var(--mid);margin-top:1rem;">
+      <a href="https://moose.mooser.email" style="font-size:.72rem;color:var(--grey);text-decoration:none;font-style:italic;transition:color .2s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='var(--grey)'" id="footer-moose"></a>
+      <script>
+        !function(){var a=["Reviewing pull requests with antlers crossed","Debugging production by staring at it","Deploying on a Friday","Writing unit tests for unit tests","Eating leaves between deploys","Teaching Claude how to read email","Doing absolutely nothing and calling it monitoring","Contemplating whether microservices were a mistake","Wearing a cape to the deployment","Breaking the fourth wall","Microwaving fish in the server room","Having a philosophical debate with a crow","Impulse-buying a domain name","Watching cat videos for research","On a first date with a new npm package","Googling how to exit vim","Naming a variable and having an existential crisis","Trying to order pizza to the server room","Building a blanket fort around the database","Writing fan fiction about the app and database"];var s=Math.floor(Date.now()/3600000);var x=Math.sin(s)*10000;var i=Math.floor((x-Math.floor(x))*a.length);document.getElementById("footer-moose").textContent="the moose is currently: "+a[i].toLowerCase();}();
+      </script>
+    </div>
   </footer>
 
   <script>
@@ -609,6 +698,20 @@
     }
     const saved = localStorage.getItem('theme') || 'dark';
     applyTheme(saved);
+
+    function openLightbox(src) {
+      var lb = document.getElementById('lightbox');
+      document.getElementById('lightbox-img').src = src;
+      lb.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeLightbox();
+    });
   </script>
 </body>
 </html>
