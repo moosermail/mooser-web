@@ -1,4 +1,42 @@
+x-database-url: &database-url
+  DATABASE_URL: postgres://mooser:${POSTGRES_PASSWORD}@postgres:5432/mooser
+
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mooser-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mooser
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: mooser
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./migrations/002_power_features.sql:/docker-entrypoint-initdb.d/002_power_features.sql:ro
+      - ./migrations/003_pipes.sql:/docker-entrypoint-initdb.d/003_pipes.sql:ro
+      - ./migrations/004_api_keys_contacts_delivery.sql:/docker-entrypoint-initdb.d/004_api_keys_contacts_delivery.sql:ro
+      - ./migrations/005_missing_tables_and_columns.sql:/docker-entrypoint-initdb.d/005_missing_tables_and_columns.sql:ro
+      - ./migrations/006_email_store.sql:/docker-entrypoint-initdb.d/006_email_store.sql:ro
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mooser"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/postgresql
+
   landing:
     build: ./landing
     container_name: mooser-landing
@@ -7,38 +45,130 @@ services:
       - "127.0.0.1:4000:4000"
     environment:
       PORT: 4000
+    volumes:
+      - ./landing:/app:ro
+    networks:
+      - external
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: "0.25"
+    security_opt:
+      - no-new-privileges:true
 
   mcp:
     build: ./mcp
     container_name: mooser-mcp
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "127.0.0.1:4001:4001"
     environment:
+      <<: *database-url
       PORT: 4001
       SEND_ENABLED: ${SEND_ENABLED:-false}
-      SUPABASE_URL: ${SUPABASE_URL}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    networks:
+      - internal
+      - external
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: "0.5"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
 
   app:
     build:
       context: ./app
       args:
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
         NEXT_PUBLIC_APP_URL: https://app.mooser.email
     container_name: mooser-app
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "127.0.0.1:4002:4002"
     environment:
+      <<: *database-url
       PORT: 4002
+      HOSTNAME: 0.0.0.0
       NODE_ENV: production
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       NEXT_PUBLIC_APP_URL: https://app.mooser.email
-      SUPABASE_URL: ${SUPABASE_URL}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      STRIPE_PRICE_BASIC: ${STRIPE_PRICE_BASIC}
-      STRIPE_PRICE_PRO: ${STRIPE_PRICE_PRO}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    networks:
+      - internal
+      - external
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4002/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  worker:
+    build: ./worker
+    container_name: mooser-worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *database-url
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    networks:
+      - internal
+      - external
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f cron-worker || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: "0.25"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+
+networks:
+  internal:
+    internal: true
+  external:
+
+volumes:
+  pgdata:
