@@ -1,7 +1,10 @@
 node_modules/
 mcp/dist/
 mcp/node_modules/
+app/.next/
+app/node_modules/
 .env
 *.env
 .DS_Store
 keys.txt
+.vercel
