@@ -482,7 +482,7 @@
       MOOSERMAIL
     </a>
     <a href="features/security.html" class="nav-link">SECURITY</a>
-    <a href="https://app.mooser.email/docs" class="nav-link">DOCS</a>
+    <a href="https://app.mooser.email/docs" class="nav-link" id="nav-docs">DOCS</a>
     <a href="https://status.mooser.email" class="nav-link">STATUS</a>
     <a href="https://app.mooser.email/login" class="pill-btn" style="padding:.5rem 1.2rem;font-size:.85rem;">SIGN IN</a>
   </nav>
@@ -655,8 +655,20 @@
       <h2>REAL PRODUCT. FULLY OPEN SOURCE.</h2>
       <p>The CLI, web app, MCP server, and worker. All of it. Fork it, self-host it, send a PR.</p>
       <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:.5rem;">
-        <a href="https://github.com/moosermail/moosermail" class="code-pill" style="text-decoration:none;color:inherit;">CLI: github.com/moosermail/moosermail</a>
-        <a href="https://github.com/moosermail/mooser-web" class="code-pill" style="text-decoration:none;color:inherit;">WEB: github.com/moosermail/mooser-web</a>
+        <a href="https://github.com/moosermail/moosermail" class="code-pill" id="pill-cli" style="text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:.6rem;">
+          <span>CLI: github.com/moosermail/moosermail</span>
+          <span id="stars-cli" style="display:none;align-items:center;gap:.25rem;font-size:.8rem;color:var(--grey);font-family:'Space Grotesk',sans-serif;letter-spacing:0;">
+            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" style="flex-shrink:0;"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+            <span id="stars-cli-count"></span>
+          </span>
+        </a>
+        <a href="https://github.com/moosermail/mooser-web" class="code-pill" id="pill-web" style="text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:.6rem;">
+          <span>WEB: github.com/moosermail/mooser-web</span>
+          <span id="stars-web" style="display:none;align-items:center;gap:.25rem;font-size:.8rem;color:var(--grey);font-family:'Space Grotesk',sans-serif;letter-spacing:0;">
+            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" style="flex-shrink:0;"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+            <span id="stars-web-count"></span>
+          </span>
+        </a>
       </div>
     </div>
   </div>
@@ -712,6 +724,28 @@
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') closeLightbox();
     });
+  </script>
+
+  <script>
+    (function fetchStars() {
+      var repos = [
+        { api: 'https://api.github.com/repos/moosermail/moosermail', countEl: 'stars-cli-count', wrapEl: 'stars-cli' },
+        { api: 'https://api.github.com/repos/moosermail/mooser-web',  countEl: 'stars-web-count', wrapEl: 'stars-web' }
+      ];
+      repos.forEach(function(repo) {
+        fetch(repo.api, { headers: { Accept: 'application/vnd.github.v3+json' } })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var count = data.stargazers_count;
+            if (typeof count !== 'number') return;
+            var formatted = count >= 1000 ? (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : String(count);
+            document.getElementById(repo.countEl).textContent = formatted;
+            var wrap = document.getElementById(repo.wrapEl);
+            wrap.style.display = 'inline-flex';
+          })
+          .catch(function() {});
+      });
+    })();
   </script>
 </body>
 </html>
